@@ -1,0 +1,5 @@
+{
+  "TelegramToken": "TOKEN",
+  "ListenPort": "80",
+  "ChatId": "CHATID"
+}
