@@ -13,7 +13,7 @@ import (
 
 
 
-func SendMessage(message string, chatId string, token string) int {
+func SendMessage(message string, chatId string, token string) (r string) {
 
 	var client http.Client
 
@@ -25,16 +25,15 @@ func SendMessage(message string, chatId string, token string) int {
 
         if err != nil {
                 log.Println(err)
-                return 1
+                return 
         }
 
         body, err := ioutil.ReadAll(response.Body)
-        log.Println(string(body))
 
         if err != nil {
                 log.Println(err)
-                return 1
+                return 
         }
 
-        return 0
+        return string(body)
 }

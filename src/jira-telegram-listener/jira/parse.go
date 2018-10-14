@@ -51,7 +51,7 @@ func MakeMessageFromApi (body []byte) (string, error) {
 
 	eventType := message.WebhookEvent
 
-	log.Printf("Event %s was registered", eventType)
+	log.Printf("[INFO] Event %s was registered", eventType)
 
 	slice := strings.Split(message.Issue.Self, "/")
 	issueLink := fmt.Sprintf("%s//%s/browse/%s", slice[0], slice[2], message.Issue.Key)

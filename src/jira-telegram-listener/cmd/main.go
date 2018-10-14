@@ -1,25 +1,30 @@
 package main
 
 import (
-	"encoding/json"
 	"flag"
 	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
+	"fmt"
 
 	jira "jira-telegram-listener/jira"
 	tg "jira-telegram-listener/telegram"
+	
+	"gopkg.in/yaml.v2"
+
 )
 
 var (
-	config = flag.String("config", "/etc/fira-telegram-listener.json", "path to config file")
+	config = flag.String("config", "/etc/jira-telegram-listener.yml", "path to config file")
+	version = flag.Bool("version", false, "show current version")
+	BuildVersion = "none"
 )
 
 type Config struct {
-	TelegramToken string
-	ChatId        string
-	ListenPort    string
+	TelegramToken 		string
+	TelegramChatId		string
+	ListenPort    		string
 }
 
 func TelegramHandler(token string, chatid string) http.HandlerFunc {
@@ -33,28 +38,33 @@ func TelegramHandler(token string, chatid string) http.HandlerFunc {
 		message, _ := jira.MakeMessageFromApi(body)
 
 		result := tg.SendMessage(message, chatid, token)
-		if result == 0 {
-			log.Println("Message sent!")
-		}
+		log.Printf("[DEBUG] Responce from telegram: ", result)
 
 	}
 }
 
 func main() {
+
 	flag.Parse()
 
-	file, _ := os.Open(*config)
-	decoder := json.NewDecoder(file)
-	configuration := Config{}
-	err := decoder.Decode(&configuration)
-
-	if err != nil {
-		log.Panic(err)
+	if *version != false {
+		fmt.Println(BuildVersion)
+		os.Exit(0)
 	}
+
+	file, _ := os.Open(*config)
+        configuration := Config{}
+        target, _ := ioutil.ReadAll(file)
+
+        err := yaml.Unmarshal(target, &configuration)
+        if err != nil {
+                log.Printf("[ERROR] Error while parsing configuration: ", err)
+        }
+
 
 	listenPort := ":" + configuration.ListenPort
 
-	http.HandleFunc("/", TelegramHandler(configuration.TelegramToken, configuration.ChatId))
+	http.HandleFunc("/", TelegramHandler(configuration.TelegramToken, configuration.TelegramChatId))
 
 	if err := http.ListenAndServe(listenPort, nil); err != nil {
 		log.Fatal(err)

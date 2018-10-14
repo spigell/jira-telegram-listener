@@ -1,0 +1,4 @@
+listenport: "80"
+telegramtoken: "TOKEN"
+telegramchatid: "CHATID"
+
